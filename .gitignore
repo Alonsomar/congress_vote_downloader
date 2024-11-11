@@ -1,0 +1,20 @@
+# Entorno virtual
+venv/
+
+# Archivos del sistema operativo
+*.DS_Store
+*.log
+
+# Archivos de bases de datos temporales
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos de configuración locales
+.env
+
+# Archivos de configuración de PyCharm
+.idea/
+
+# Archivos de configuración de VSCode
+.vscode/
