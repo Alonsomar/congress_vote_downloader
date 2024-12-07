@@ -1,17 +1,10 @@
 # Entorno virtual
 venv/
 
-# Archivos del sistema operativo
-*.DS_Store
-*.log
-
 # Archivos de bases de datos temporales
 __pycache__/
 *.pyc
 *.pyo
-
-# Archivos de configuración locales
-.env
 
 # Archivos de configuración de PyCharm
 .idea/
@@ -21,3 +14,29 @@ __pycache__/
 
 # Archivos de paginas web opendata congreso
 opendata_congreso_webpages/
+
+# Logs y archivos temporales del sistema
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+
+# Archivos de configuración sensibles
+.env
+.env.*  # Si tienes varias versiones (dev.env, prod.env)
+
+# Salidas de Docker
+*.pid
+tmp/
+data/
+
+# Instancias del editor
+.vscode/
+.idea/
+
+# MacOS
+._*
+
+# Windows Thumbs
+Thumbs.db
