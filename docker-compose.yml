@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:4.4
+    container_name: mongo_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
+
+  pipeline:
+    build: ./data_pipeline
+    container_name: data_pipeline
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/
+    command: ["sh", "-c", "python src/clean_data.py && python src/get_proyectos.py"] # Ejemplo, modificar según tu pipeline.
+
+  backend:
+    build: ./backend
+    container_name: backend_api
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/
+    ports:
+      - "8000:8000"
+    command: ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_app
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
