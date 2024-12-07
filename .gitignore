@@ -25,6 +25,7 @@ opendata_congreso_webpages/
 # Archivos de configuración sensibles
 .env
 .env.*  # Si tienes varias versiones (dev.env, prod.env)
+infrastructure/env/ 
 
 # Salidas de Docker
 *.pid
