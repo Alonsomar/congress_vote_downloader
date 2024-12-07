@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+
+# Virtual envs
+venv/
+.venv/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Distribuciones
+build/
+dist/
+*.egg-info/

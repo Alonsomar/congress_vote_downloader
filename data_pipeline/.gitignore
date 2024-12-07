@@ -1,0 +1,10 @@
+# Python cache y entornos
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Logs temporales
+*.log
+cache/
+temp/

@@ -1,0 +1,14 @@
+# Node
+node_modules/
+npm-debug.log
+yarn.lock
+
+# Build outputs
+build/
+dist/
+.cache/
+coverage/
+
+# Editor artifacts
+.vscode/
+.idea/
