@@ -1,21 +1,8 @@
 import requests
-import pymongo
 import xml.etree.ElementTree as ET
-
-# Configuración de MongoDB
-MONGO_URI = "mongodb://localhost:27017/"
-DATABASE_NAME = "votaciones_chile"
-
-# Conexión a MongoDB
-try:
-    client = pymongo.MongoClient(MONGO_URI)
-    db = client[DATABASE_NAME]
-    legislaturas_collection = db["legislaturas_diputados"]
-    sesiones_collection = db["sesiones_diputados"]
-    print("Conexión exitosa a MongoDB")
-except Exception as e:
-    print(f"Error al conectar con MongoDB: {e}")
-    exit()
+from utils.db_connection import get_mongodb_connection
+from utils.logger import get_logger
+logger = get_logger(__name__)
 
 # Configuración del endpoint
 BASE_URL_CAMARA = "https://opendata.camara.cl"
@@ -28,10 +15,10 @@ def obtener_sesiones(legislatura_id):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        print(f"Estado de la respuesta para legislatura {legislatura_id}: {response.status_code}")
+        logger.info(f"Estado de la respuesta para legislatura {legislatura_id}: {response.status_code}")
         return parsear_sesiones(response.content, legislatura_id)
     except Exception as e:
-        print(f"Error al obtener sesiones para legislatura {legislatura_id}: {e}")
+        logger.error(f"Error al obtener sesiones para legislatura {legislatura_id}: {e}")
         return []
 
 
@@ -55,28 +42,38 @@ def parsear_sesiones(xml_data, legislatura_id):
             }
             sesiones.append(data)
         except AttributeError as e:
-            print(f"Error al procesar una sesión: {e}")
+            logger.error(f"Error al procesar una sesión: {e}")
     return sesiones
 
 
-def almacenar_sesiones(sesiones):
+def almacenar_sesiones(sesiones, sesiones_collection):
     """Almacena las sesiones en MongoDB."""
     if sesiones:
         for sesion in sesiones:
             sesiones_collection.update_one(
                 {"ID": sesion["ID"]}, {"$set": sesion}, upsert=True
             )
-        print(f"Se almacenaron {len(sesiones)} sesiones.")
+        logger.info(f"Se almacenaron {len(sesiones)} sesiones.")
     else:
-        print("No hay sesiones para almacenar.")
+        logger.info("No hay sesiones para almacenar.")
 
+def main():
+    logger.info("Iniciando extracción de sesiones")
 
-if __name__ == "__main__":
+    # Conexión a MongoDB
+    client, db = get_mongodb_connection()
+    legislaturas_collection = db["raw_legislaturas_diputados"]
+    sesiones_collection = db["raw_sesiones_diputados"]
+
     # Obtener legislaturas desde MongoDB
     legislaturas = legislaturas_collection.find({"ID": {"$gte": 42}})
 
     for legislatura in legislaturas:
         legislatura_id = legislatura["ID"]
-        print(f"Procesando legislatura ID: {legislatura_id}")
+        logger.info(f"Procesando legislatura ID: {legislatura_id}")
         sesiones = obtener_sesiones(legislatura_id)
-        almacenar_sesiones(sesiones)
+        almacenar_sesiones(sesiones, sesiones_collection)
+
+
+if __name__ == "__main__":
+    main()

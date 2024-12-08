@@ -1,24 +1,12 @@
 import requests
-import json
 import time
 from xml.etree import ElementTree as ET
-import pymongo
+from utils.db_connection import get_mongodb_connection
+from utils.logger import get_logger
+logger = get_logger(__name__)
 
-# Configuración de MongoDB
-MONGO_URI = "mongodb://localhost:27017/"
-DATABASE_NAME = "votaciones_chile"
 
-# Conexión a MongoDB
-try:
-    client = pymongo.MongoClient(MONGO_URI)
-    db = client[DATABASE_NAME]
-    diputados_collection = db["diputados_periodo_legislativo"]
-    print("Conexión exitosa a MongoDB")
-except Exception as e:
-    print(f"Error al conectar con MongoDB: {e}")
-    exit()
-
-def fetch_diputados_periodo():
+def fetch_diputados_periodo(diputados_collection):
     url_base = "https://opendata.camara.cl/wscamaradiputados.asmx/getDiputados_Periodo"
     periodo_id = 1
     consecutive_empty_responses = 0
@@ -33,20 +21,21 @@ def fetch_diputados_periodo():
             if "<Diputado>" in content:
                 diputados = parse_diputados(content)
                 all_diputados.extend(diputados)
-                almacenar_diputados(diputados)
-                print(f"Período {periodo_id}: {len(diputados)} diputados encontrados y almacenados.")
+                almacenar_diputados(diputados, diputados_collection)
+                logger.info(f"Período {periodo_id}: {len(diputados)} diputados encontrados y almacenados.")
                 consecutive_empty_responses = 0
             else:
-                print(f"Período {periodo_id}: sin datos.")
+                logger.info(f"Período {periodo_id}: sin datos.")
                 consecutive_empty_responses += 1
         else:
-            print(f"Error en el request del período {periodo_id}: {response.status_code}")
+            logger.error(f"Error en el request del período {periodo_id}: {response.status_code}")
             break
         
         periodo_id += 1
         time.sleep(0.3)  # Pausa para no sobrecargar el servidor
 
-    print(f"Proceso completado. {len(all_diputados)} diputados procesados.")
+    logger.info(f"Proceso completado. {len(all_diputados)} diputados procesados.")
+
 
 def parse_diputados(content):
     """Extraer datos de diputados desde la respuesta XML."""
@@ -67,7 +56,8 @@ def parse_diputados(content):
         diputados.append(diputado_data)
     return diputados
 
-def almacenar_diputados(diputados):
+
+def almacenar_diputados(diputados, diputados_collection):
     """Almacena los datos de diputados en MongoDB."""
     if diputados:
         for diputado in diputados:
@@ -76,9 +66,20 @@ def almacenar_diputados(diputados):
                 {"$set": diputado},
                 upsert=True
             )
-        print(f"Se almacenaron {len(diputados)} registros de diputados.")
+        logger.info(f"Se almacenaron {len(diputados)} registros de diputados.")
     else:
-        print("No hay registros de diputados para almacenar.")
+        logger.info("No hay registros de diputados para almacenar.")
+
+
+def main():
+    logger.info("Iniciando la descarga de diputados.")
+
+    # Conexión a MongoDB
+    client, db = get_mongodb_connection()
+    diputados_collection = db["raw_diputados_periodo_legislativo"]
+
+    fetch_diputados_periodo(diputados_collection)
+
 
 if __name__ == "__main__":
-    fetch_diputados_periodo()
+    main()

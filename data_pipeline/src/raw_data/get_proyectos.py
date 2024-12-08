@@ -1,22 +1,11 @@
 import requests
-import pymongo
 import xml.etree.ElementTree as ET
 import re
+from utils.db_connection import get_mongodb_connection
+from utils.logger import get_logger
 
-# Configuración de MongoDB
-MONGO_URI = "mongodb://localhost:27017/"
-DATABASE_NAME = "votaciones_chile"
+logger = get_logger(__name__)
 
-# Conexión a MongoDB
-try:
-    client = pymongo.MongoClient(MONGO_URI)
-    db = client[DATABASE_NAME]
-    boletines_collection = db["boletines_sesiones"]
-    proyectos_collection = db["proyectos"]
-    print("Conexión exitosa a MongoDB")
-except Exception as e:
-    print(f"Error al conectar con MongoDB: {e}")
-    exit()
 
 # Configuración del endpoint
 BASE_URL_TRAMITACION = "https://tramitacion.senado.cl/wspublico/tramitacion.php"
@@ -33,7 +22,7 @@ def extraer_boletines(boletin_xml):
                 matches = re.findall(r'\b\d{4}-\d{2}\b', element.text)
                 boletines.update(matches)
     except ET.ParseError as e:
-        print(f"Error al parsear XML: {e}")
+        logger.error(f"Error al parsear XML: {e}")
     return list(boletines)
 
 def descargar_proyecto(boletin):
@@ -45,13 +34,13 @@ def descargar_proyecto(boletin):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        print(f"Datos descargados para boletín {boletin}")
+        logger.info(f"Datos descargados para boletín {boletin}")
         return response.text
     except Exception as e:
-        print(f"Error al descargar datos para boletín {boletin}: {e}")
+        logger.error(f"Error al descargar datos para boletín {boletin}: {e}")
         return None
 
-def almacenar_proyecto(boletin, data):
+def almacenar_proyecto(boletin, data, proyectos_collection):
     """
     Almacena el proyecto descargado en MongoDB.
     """
@@ -61,11 +50,18 @@ def almacenar_proyecto(boletin, data):
             {"$set": {"Boletin": boletin, "Datos": data}},
             upsert=True,
         )
-        print(f"Datos almacenados para boletín {boletin}")
+        logger.info(f"Datos almacenados para boletín {boletin}")
     else:
-        print(f"No se almacenaron datos para boletín {boletin}")
+        logger.info(f"No se almacenaron datos para boletín {boletin}")
 
-if __name__ == "__main__":
+def main():
+    logger.info("Iniciando la descarga de proyectos.")
+
+    # Conexión a MongoDB
+    client, db = get_mongodb_connection()
+    boletines_collection = db["raw_boletines_sesiones"]
+    proyectos_collection = db["raw_proyectos"]
+
     # Obtener boletines no procesados desde la colección boletines_sesiones
     boletines_cursor = boletines_collection.find({"BoletinXML": {"$exists": True}})
     for documento in boletines_cursor:
@@ -76,9 +72,9 @@ if __name__ == "__main__":
             # Comprobar si el boletín ya está almacenado
             existe = proyectos_collection.find_one({"Boletin": boletin})
             if existe:
-                print(f"El boletín {boletin} ya está almacenado. Saltando...")
+                logger.info(f"El boletín {boletin} ya está almacenado. Saltando...")
                 continue
             
-            print(f"Procesando boletín {boletin}")
+            logger.info(f"Procesando boletín {boletin}")
             proyecto_data = descargar_proyecto(boletin)
-            almacenar_proyecto(boletin, proyecto_data)
+            almacenar_proyecto(boletin, proyecto_data, proyectos_collection)

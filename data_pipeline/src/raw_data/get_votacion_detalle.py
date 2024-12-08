@@ -1,24 +1,14 @@
 import requests
-import pymongo
 import xml.etree.ElementTree as ET
+from utils.db_connection import get_mongodb_connection
+from utils.logger import get_logger
 
-# Configuración de MongoDB
-MONGO_URI = "mongodb://localhost:27017/"
-DATABASE_NAME = "votaciones_chile"
+logger = get_logger(__name__)
 
 # URL base
 DETALLE_VOTACION_URL = "https://opendata.camara.cl/wscamaradiputados.asmx/getVotacion_Detalle"
 
-# Conexión a MongoDB
-try:
-    client = pymongo.MongoClient(MONGO_URI)
-    db = client[DATABASE_NAME]
-    votaciones_diputados_collection = db["votaciones_diputados"]
-    votacion_detalle_collection = db["votacion_detalle"]
-    print("Conexión exitosa a MongoDB")
-except Exception as e:
-    print(f"Error al conectar con MongoDB: {e}")
-    exit()
+
 
 # Función para obtener el detalle de una votación
 def get_votacion_detalle(votacion_id):
@@ -76,11 +66,11 @@ def get_votacion_detalle(votacion_id):
         
         return detalle_votacion
     except Exception as e:
-        print(f"Error al obtener detalle de votación {votacion_id}: {e}")
+        logger.error(f"Error al obtener detalle de votación {votacion_id}: {e}")
         return None
 
 # Almacenamiento en MongoDB
-def almacenar_detalle_votacion(detalle_votacion):
+def almacenar_detalle_votacion(detalle_votacion, votacion_detalle_collection):
     """
     Almacena el detalle de una votación en MongoDB.
     """
@@ -91,18 +81,29 @@ def almacenar_detalle_votacion(detalle_votacion):
             {"$set": detalle_votacion},
             upsert=True
         )
-        print(f"Detalle de votación {votacion_id} almacenado correctamente.")
+        logger.info(f"Detalle de votación {votacion_id} almacenado correctamente.")
 
-# Proceso principal
-if __name__ == "__main__":
+def main():
+    logger.info("Iniciando la descarga de detalle de votaciones.")
+
+    # Conexión a MongoDB
+    client, db = get_mongodb_connection()
+    votaciones_diputados_collection = db["raw_votaciones_diputados"]
+    votacion_detalle_collection = db["raw_votacion_detalle"]
+
     # Obtener IDs de votaciones de la colección `votaciones_diputados`
     votaciones_cursor = votaciones_diputados_collection.find({}, {"ID": 1})
     for documento in votaciones_cursor:
         votacion_id = documento["ID"]
-        print(f"Procesando votación {votacion_id}...")
+        logger.info(f"Procesando votación {votacion_id}...")
         
         # Obtener detalle de votación
         detalle_votacion = get_votacion_detalle(votacion_id)
         
         # Almacenar en MongoDB
-        almacenar_detalle_votacion(detalle_votacion)
+        almacenar_detalle_votacion(detalle_votacion, votacion_detalle_collection)
+
+
+# Proceso principal
+if __name__ == "__main__":
+    main()

@@ -1,26 +1,14 @@
 import requests
-import pymongo
 import xml.etree.ElementTree as ET
+from utils.db_connection import get_mongodb_connection
+from utils.logger import get_logger
 
-# Configuración de MongoDB
-MONGO_URI = "mongodb://localhost:27017/"
-DATABASE_NAME = "votaciones_chile"
+logger = get_logger(__name__)
 
 # URLs base
 DIPUTADOS_URL = "https://opendata.camara.cl/wscamaradiputados.asmx/getVotaciones_Boletin"
 SENADORES_URL = "https://tramitacion.senado.cl/wspublico/votaciones.php"
 
-# Conexión a MongoDB
-try:
-    client = pymongo.MongoClient(MONGO_URI)
-    db = client[DATABASE_NAME]
-    diputados_collection = db["votaciones_diputados"]
-    senadores_collection = db["votaciones_senadores"]
-    proyectos_collection = db["proyectos"]  # Colección donde están los boletines
-    print("Conexión exitosa a MongoDB")
-except Exception as e:
-    print(f"Error al conectar con MongoDB: {e}")
-    exit()
 
 # Función para obtener votaciones de diputados
 def get_votaciones_diputados(boletin):
@@ -52,7 +40,7 @@ def get_votaciones_diputados(boletin):
             votaciones.append(data)
         return votaciones
     except Exception as e:
-        print(f"Error al obtener votaciones de diputados para boletín {boletin}: {e}")
+        logger.error(f"Error al obtener votaciones de diputados para boletín {boletin}: {e}")
         return []
 
 # Función para obtener votaciones de senadores
@@ -87,7 +75,7 @@ def get_votaciones_senadores(boletin):
             votaciones.append(data)
         return votaciones
     except Exception as e:
-        print(f"Error al obtener votaciones de senadores para boletín {boletin}: {e}")
+        logger.error(f"Error al obtener votaciones de senadores para boletín {boletin}: {e}")
         return []
 
 # Almacenamiento en MongoDB
@@ -102,16 +90,23 @@ def almacenar_votaciones(collection, votaciones, boletin):
             {"$set": votacion},
             upsert=True
         )
-    print(f"{len(votaciones)} votaciones almacenadas para boletín {boletin}")
+    logger.info(f"{len(votaciones)} votaciones almacenadas para boletín {boletin}")
 
-# Proceso principal
-if __name__ == "__main__":
+def main():
+    logger.info("Iniciando la descarga de votaciones.")
+
+    # Conexión a MongoDB
+    client, db = get_mongodb_connection()
+    diputados_collection = db["raw_votaciones_diputados"]
+    senadores_collection = db["raw_votaciones_senadores"]
+    proyectos_collection = db["raw_proyectos"]  # Colección donde están los boletines
+
     # Obtener boletines de la colección `proyectos`
     boletines_cursor = proyectos_collection.find({"Boletin": {"$exists": True}})
     for documento in boletines_cursor:
         boletin = documento["Boletin"]
         boletin_base = boletin.split("-")[0]  # Usar los primeros 4 dígitos
-        print(f"Procesando boletín {boletin_base}")
+        logger.info(f"Procesando boletín {boletin_base}")
 
         # Obtener y almacenar votaciones de diputados
         votaciones_diputados = get_votaciones_diputados(boletin_base)
@@ -120,3 +115,8 @@ if __name__ == "__main__":
         # Obtener y almacenar votaciones de senadores
         votaciones_senadores = get_votaciones_senadores(boletin_base)
         almacenar_votaciones(senadores_collection, votaciones_senadores, boletin_base)
+
+
+# Proceso principal
+if __name__ == "__main__":
+    main()
