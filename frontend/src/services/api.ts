@@ -31,8 +31,40 @@ export const fetchDiputados = async (
   return data;
 };
 
-export const fetchProyectos = async (page: number = 1) => {
-  const { data } = await api.get<PaginatedResponse<Proyecto>>(`/proyectos/?page=${page}`);
+export const fetchProyectos = async (
+  page: number = 1,
+  filters?: {
+    titulo?: string;
+    estado?: string;
+    fecha_desde?: string;
+    fecha_hasta?: string;
+    materias?: string[];
+    autores?: string[];
+  },
+  pageSize: number = 20
+) => {
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('page_size', pageSize.toString());
+  
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach(v => params.append(key, v));
+        } else if (value.trim() !== '') {
+          params.append(key, value);
+        }
+      }
+    });
+  }
+
+  const { data } = await api.get<PaginatedResponse<Proyecto>>(`/proyectos/?${params}`);
+  return data;
+};
+
+export const fetchProyectoDetail = async (boletin: string) => {
+  const { data } = await api.get<Proyecto>(`/proyectos/${boletin}/`);
   return data;
 };
 

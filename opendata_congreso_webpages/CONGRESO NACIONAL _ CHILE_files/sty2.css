@@ -1,0 +1,216 @@
+@charset "utf-8";
+#box {
+	height: auto;
+	width: 990px;
+	margin-top: 0px;
+	margin-right: auto;
+	margin-left: auto;
+	border-top-width: 2px;
+	border-top-style: solid;
+	border-top-color: #C22422;
+}
+#ctder .listas {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 18px;
+	color: #333;
+	text-decoration: none;
+	letter-spacing: 1px;
+	text-align: justify;
+}
+
+#ctder .listas a:link {
+	text-decoration: none;
+	color: #333;
+	font-size: 11px;
+}
+#ctder .listas a:hover {
+	text-decoration: underline;
+	color: #C22422;
+	font-size: 11px;
+}
+#ctder .listas a:active {
+	text-decoration: none;
+	color: #C22422;
+	font-size: 11px;
+}
+#ctder .listas a:visited {
+	text-decoration: none;
+	color: #666;
+	font-size: 11px;
+}
+#ctder2c .listas {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 20px;
+	color: #333;
+	text-decoration: none;
+	text-align: left;
+	list-style-type: circle;
+	list-style-position: outside;
+}
+
+#ctder2c .listas a:link {
+	text-decoration: none;
+	color: #333;
+	font-size: 11px;
+}
+#ctder2c .listas a:hover {
+	text-decoration: underline;
+	color: #C22422;
+	font-size: 11px;
+}
+#ctder2c .listas a:active {
+	text-decoration: none;
+	color: #C22422;
+	font-size: 11px;
+}
+#ctder2c .listas a:visited {
+	text-decoration: none;
+	color: #666;
+	font-size: 11px;
+}
+
+#box #content {
+	background-color: #C4C2C2;
+	height: auto;
+	width: 990px;
+	float: left;
+}
+#box #header {
+	background-image: url(img2/top.png);
+	height: 113px;
+	width: 990px;
+	background-repeat: no-repeat;
+	float: left;
+}
+#box #footer {
+	background-image: url(img2/bottom.png);
+	float: left;
+	height: 39px;
+	width: 990px;
+	border-bottom-width: 4px;
+	border-bottom-style: solid;
+	border-bottom-color: #C22422;
+	font-size: 15px;
+}
+#footer a:link {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	color: #FFF;
+	text-decoration: none;
+	letter-spacing: 1px;
+}
+#footer a:visited {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	color: #FFF;
+	text-decoration: none;
+	letter-spacing: 1px;
+}
+#footer a:hover {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	text-decoration: none;
+	color: #C22422;
+	letter-spacing: 1px;
+}
+#content #izq {
+	height: auto;
+	width: 292px;
+	background-image: url(img2/cont_izq.png);
+	background-repeat: no-repeat;
+	background-color: #C4C2C2;
+	float: left;
+}
+#content #der {
+	background-image: url(img2/cont_der.png);
+	height: auto;
+	width: 698px;
+	float: left;
+	background-repeat: no-repeat;
+	background-color: #F0EFEF;
+}
+#content #izq #txizq{
+	float: left;
+	width: 250px;
+	margin-top: 20px;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #333;
+	font-size: 11px;
+	line-height: 25px;
+	text-align: justify;
+	margin-left: 20px;
+	margin-bottom: 40px;
+}
+#der #ctder {
+	width: 698px;
+	float: left;
+	height: auto;
+	margin-top: 10px;
+	margin-bottom: 40px;
+}
+#der #ctder2c {
+	width: 300px;
+	float: left;
+	height: auto;
+	margin-left: 33px;
+	margin-top: 25px;
+	margin-bottom: 0px;
+}
+
+.piefoto {
+	line-height: 14px;
+}
+
+.tbfnd {
+	background-image: url(img2/blanco_cont.png);
+	background-repeat: repeat;
+}
+#ctder .tit1 {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	font-size: 22px;
+	font-weight: bold;
+	color: #666;
+	letter-spacing: 1px;
+}
+#ctder2c .tit1b {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	color: #666;
+	letter-spacing: 1px;
+}
+#ctder .bjtx {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #666;
+}
+#ctder2c .bjtxb {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #666;
+}
+body {
+	background-color: #FFF;
+	margin: 0px;
+}
+
+#msj1 {
+	background-color: #F0F0F0;
+	 
+	width: 200px;
+	border: 1px solid #CCC;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	color: #333;
+	font-weight: normal;
+	letter-spacing: 1px;
+	text-decoration: none;
+	overflow: hidden;
+	visibility: hidden;
+	display: none;
+}

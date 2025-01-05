@@ -1,43 +1,67 @@
-# Entorno virtual
-venv/
-
-# Archivos de bases de datos temporales
-__pycache__/
-*.pyc
-*.pyo
-
-# Archivos de configuración de PyCharm
-.idea/
-
-# Archivos de configuración de VSCode
-.vscode/
-
-# Archivos de paginas web opendata congreso
-opendata_congreso_webpages/
-
-# Logs y archivos temporales del sistema
+# General
+.DS_Store
+Thumbs.db
 *.log
 *.tmp
 *.swp
 *.swo
-.DS_Store
 
 # Archivos de configuración sensibles
 .env
 .env.*  # Si tienes varias versiones (dev.env, prod.env)
-infrastructure/env/ 
+infrastructure/env/
 
-# Salidas de Docker
+# Archivos de configuración del editor
+.vscode/
+.idea/
+
+# Archivos temporales de Docker
 *.pid
 tmp/
 data/
 
-# Instancias del editor
-.vscode/
-.idea/
-
 # MacOS
 ._*
 
-# Windows Thumbs
-Thumbs.db
+# Backend (Django)
+backend/venv/
+backend/env/
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/db.sqlite3
+backend/*.sqlite3
+backend/media/
+backend/staticfiles/
+backend/static/
+backend/*.log
+backend/*.pot
+backend/*.mo
+backend/.coverage
+backend/htmlcov/
+backend/*.out
+backend/migrations/
+backend/*.migration
+backend/.vscode
+
+# Data downloader
+data_pipeline/.vscode
+data_pipeline/venv/
+
+# Frontend (Yarn)
+frontend/node_modules/
+frontend/yarn-error.log
+frontend/yarn-debug.log*
+frontend/.pnp.cjs
+frontend/.pnp.loader.mjs
+
+# Archivos de configuración de Parcel/Webpack
+frontend/.cache/
+frontend/dist/
+
+# Archivos de build de Yarn
+frontend/build/
+
+# Archivos específicos de npm/yarn
+frontend/npm-debug.log*
+frontend/package-lock.json
